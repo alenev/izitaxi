@@ -1,10 +1,10 @@
-#Установка и настройка:
+#Встановлення і налаштування:
  
-- установка пакетов Laravel (composer install)
-- установка node-modules (npm install)
-- подключение к БД (сеттинг в файле конфига .env)
-- миграция структуры БД (php artisan migrate)
-- заполнение таблицы ордеров тестовыми данными (php artisan db:seed --class=OrdersSeeder)
-- запуск development-среды (npm run dev) В .htaccess настроен редирект на папку /public. 
-- app фронтенда на Vue/Vuex/Vuetify реализован в базовом шаблоне Laravel resources\views\welcome.blade.php
-- в routes\web.php настроена обработка всех роутов фронтенда через app  
+- встановлення пакетів Laravel (composer install)
+- встановлення node-modules (npm install)
+- підключення до БД (сеттінг в файлі конфигу .env)
+- міграція структури БД (php artisan migrate)
+- заповнення таблиці ордерів тестовими даними (php artisan db:seed --class=OrdersSeeder)
+- запуск development-середовища (npm run dev) В .htaccess налаштований редірект на папку /public. 
+- app фронтенду на Vue/Vuex/Vuetify реалізований в базовому шаблоні Laravel resources\views\welcome.blade.php
+- в routes\web.php налаштована обробка всіх роутів фронтенду через app  
