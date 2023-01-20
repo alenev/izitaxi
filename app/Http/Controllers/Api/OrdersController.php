@@ -4,12 +4,21 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\OrdersRequest;
+use App\Http\Requests\DeleteRequest;
 use App\Models\Orders;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
+use App\Helpers\Api\DataHelper;
 
 class OrdersController extends Controller
 {
+    public object $orders;
+    private object $order;
+    private array $orderData;
+    private $requestValidateError;
+
+
     /**
      * Display a listing of the resource.
      *
@@ -19,7 +28,7 @@ class OrdersController extends Controller
     {
 
           $orders = DB::table('orders')->paginate($perPage = $request['limit']);
-          
+
           return Controller::ApiResponceSuccess($orders, 200);
     }
 
@@ -30,7 +39,8 @@ class OrdersController extends Controller
      */
     public function create()
     {
-        //
+       
+
     }
 
     /**
@@ -39,9 +49,34 @@ class OrdersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(OrdersRequest $request):JsonResponse
     {
-        //
+
+        $this->requestValidateError = DataHelper::requestValidationErrorsData($request);
+
+        if ($this->requestValidateError) { 
+ 
+            return Controller::ApiResponceError($this->requestValidateError, 500); 
+  
+         }
+
+        $this->orderData = DataHelper::orderDataTransform($request->all());
+
+        $id = Orders::create($this->orderData);
+
+        if($id){
+            $this->show($id);
+            return Controller::ApiResponceSuccess([
+                "message" => "order created",
+                "order" => $this->order
+            ], 200); 
+
+        }else{
+
+            return Controller::ApiResponceError("order update error", 500);
+
+        }
+       
     }
 
     /**
@@ -52,7 +87,8 @@ class OrdersController extends Controller
      */
     public function show($id)
     {
-        //
+        $this->order = Orders::find($id)->first();
+
     }
 
     /**
@@ -63,7 +99,7 @@ class OrdersController extends Controller
      */
     public function edit($id)
     {
-        //
+        
     }
 
     /**
@@ -73,10 +109,35 @@ class OrdersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(OrdersRequest $request):JsonResponse
     {
-        //
+        $this->requestValidateError = DataHelper::requestValidationErrorsData($request);
+
+        if ($this->requestValidateError) { 
+ 
+            return Controller::ApiResponceError($this->requestValidateError, 500); 
+  
+         }
+          
+           $this->show($request['id']);
+           $this->orderData = DataHelper::orderDataTransform($request->all());
+
+           if($this->order->update($this->orderData)){
+              $this->show($request['id']);
+              return Controller::ApiResponceSuccess([
+                "message" => "order updated",
+                "order" => $this->order
+
+            ], 200); 
+
+           }else{
+
+              return Controller::ApiResponceError("order update error", 500);
+
+           }
+         
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -84,8 +145,34 @@ class OrdersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id):bool
     {
-        //
+        $this->show($id);
+
+        $delete = $this->order->delete();
+
+        return $delete;
+       
+    }
+
+    public function deleteOrder(DeleteRequest $request):JsonResponse
+    {
+        $this->requestValidateError = DataHelper::requestValidationErrorsData($request);
+
+        if ($this->requestValidateError) { 
+ 
+            return Controller::ApiResponceError($this->requestValidateError, 500); 
+  
+         }
+
+        if($this->destroy($request["id"])){
+
+            return Controller::ApiResponceSuccess(["message" => "order deleted"], 200); 
+
+         }else{
+
+            return Controller::ApiResponceError("order delete error", 500);
+
+         }
     }
 }

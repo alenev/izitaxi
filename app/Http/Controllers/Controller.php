@@ -6,7 +6,6 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
-use App\Exception\ApiException;
 use Illuminate\Http\JsonResponse;
 
 class Controller extends BaseController
@@ -18,15 +17,15 @@ class Controller extends BaseController
         if($code < 200 || $code  > 299)
         {
 
-            throw new ApiException("success response code not valid");
+            return response()->json(['error' => "success response code not valid"] , 406);
 
         }
 
 
         if(empty($data)){
  
-              throw new ApiException("success response data is empty");  
-    
+              return response()->json(['error' => "success response data is empty"], 404);
+
         }else{
 
             if(is_string($data) || is_array($data)){
@@ -39,7 +38,7 @@ class Controller extends BaseController
                 
                 if(empty($adata)){
 
-                    throw new ApiException("success response data object is empty");
+                    return response()->json(['error' => "success response data object is empty"], 404);
 
                 }else{
 
@@ -67,13 +66,13 @@ class Controller extends BaseController
         if($code < 300)
         {
 
-            throw new ApiException("error response code not valid");
+        return response()->json(['error' => "error response code not valid"], 406);
 
         }
 
         if(empty($message)){
 
-            throw new ApiException("error response message is empty");
+            return response()->json(['error' => "error response message is empty"], 404);
     
         }else{
 
