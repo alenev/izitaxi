@@ -1,7 +1,8 @@
 # LaravelVueVuexVuetifyOrdersCRUD
  
-## CRUD app with backend on Laravel 9 and frontend on Vue/Vuex/Vuetify
-- [demo](http://orders-crud.alenev.name)
+## CRUD app with backend on Laravel 9 and SPA frontend on Vue/Vuex/Vuetify
+
+## [demo](http://orders-crud.alenev.name)
 
 
 ##### Frontend
