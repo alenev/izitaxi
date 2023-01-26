@@ -285,6 +285,7 @@ methods: {
     this.editedOrder = {};
     this.product_modal_form_title = 'New order';
     this.dialog = true;
+    this.OrderFormNotValid = true;
   },
 
 
