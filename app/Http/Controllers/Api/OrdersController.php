@@ -147,11 +147,10 @@ class OrdersController extends Controller
      */
     public function destroy(int $id):bool
     {
-        $this->show($id);
 
-        $delete = $this->order->delete();
+       $delete = Orders::find($id)->delete();
 
-        return $delete;
+       return $delete;
        
     }
 

@@ -240,6 +240,8 @@ methods: {
         this.responseStatus = this.$store.getters.getResponseStatus;
         if(this.responseStatus == 200){
           this.showDialogMessage(this.deleteOrderMessage);
+          delete this.orders[this.deletedIndex];
+          this.orders.splice(this.deletedIndex, 1);
         }else{
           this.showDialogMessage(this.deleteOrderError);
         }
@@ -299,10 +301,6 @@ methods: {
   deleteItem(order) {
     this.deletedIndex = this.orders.indexOf(order);
     this.deleteOrder(order);
-    if (this.responseStatus == 200) {
-      delete this.orders[this.deletedIndex];
-      this.orders.splice(this.deletedIndex, 1);
-    }
   },
 
   showDialogMessage(text) {
