@@ -1,128 +1,121 @@
 <template>
- 
-<v-app id="inspire">
-<h1 class="text-h4 pa-md-4 ma-md-4">Orders</h1> 
 
-<v-header>
-    <div class="text-right pa-md-4">
+  <v-app id="inspire">
+    <h1 class="text-h4 pa-md-4 ma-md-4">Orders</h1>
+
+    <v-header>
+      <div class="text-right pa-md-4">
         <v-btn @click="newItem()" color="primary" rounded="pill">
-           New Order
+          New Order
         </v-btn>
+      </div>
+    </v-header>
+    <v-table>
+      <thead>
+        <tr>
+          <th class="text-left">id</th>
+          <th class="text-left">product name</th>
+          <th class="text-left">weight</th>
+          <th class="text-left">description</th>
+          <th class="text-left">price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="order in orders" :key="order.id">
+          <td>{{ order.id }}</td>
+          <td>{{ order.product_name }}</td>
+          <td>{{ order.weight }}</td>
+          <td>{{ order.description }}</td>
+          <td>{{ order.total_price }}</td>
+          <td>
+            <v-icon small class="mr-2" @click="editItem(order)">
+              mdi-pencil
+            </v-icon>
+
+          </td>
+          <td>
+            <v-icon small @click="deleteItem(order)">
+              mdi-delete
+            </v-icon>
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+
+
+    <div class="text-center pa-md-4 ma-md-4">
+      <v-pagination v-model="pagination_current_page" :length="pagination_pages" :show-first-last-page="true"
+        prev-icon="mdi-menu-left" next-icon="mdi-menu-right"
+        @update:modelValue="nextPage($event, pageSizeNum)"></v-pagination>
     </div>
-</v-header>
-  <v-table>
-    <thead>
-      <tr>
-        <th class="text-left">id</th>
-        <th class="text-left">product name</th>
-        <th class="text-left">weight</th>
-        <th class="text-left">description</th>
-        <th class="text-left">price</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="order in orders"
-        :key="order.id"
-      >
-        <td>{{ order.id }}</td>
-        <td>{{ order.product_name }}</td>
-        <td>{{ order.weight }}</td>
-        <td>{{ order.description }}</td>
-        <td>{{ order.total_price }}</td>
-        <td>
-        <v-icon
-        small
-        class="mr-2"
-        @click="editItem(order)"
-        >
-        mdi-pencil
-        </v-icon>
 
-        </td>
-        <td>
-        <v-icon
-        small
-        @click="deleteItem(order)"
-      > 
-        mdi-delete
-      </v-icon></td>
-      </tr>
-    </tbody>
-  </v-table>
+    <v-dialog v-model="dialog_message" transition="dialog-bottom-transition" class="w-50">
+      <v-card>
+        <v-container>
+          <v-card-text cols="12" md="12" class="text-center ">
+            {{ dialogMessageText }}
+          </v-card-text>
 
 
-  <div class="text-center pa-md-4 ma-md-4">
-    <v-pagination
-      v-model="pagination_current_page"
-      :length="pagination_pages"
-      :show-first-last-page="true"
-      prev-icon="mdi-menu-left"
-      next-icon="mdi-menu-right"
-      @update:modelValue="nextPage($event, pageSizeNum)"
-    ></v-pagination>
-  </div>
+          <v-col cols="12" md="12" class="text-center">
+            <v-btn color="info" class="me-4" @click="dialog_message = false">Close</v-btn>
+          </v-col>
+        </v-container>
+      </v-card>
+    </v-dialog>
 
-<v-dialog v-model="dialog_message" transition="dialog-bottom-transition" class="w-50">
-  <v-card>
-    <v-container>
-      <v-card-text cols="12" md="12" class="text-center ">
-        {{ dialogMessageText }}
-      </v-card-text>
+    <v-dialog v-model="dialog" transition="dialog-bottom-transition">
+      <v-card>
+        <v-card-text class="text-h4">
+          {{ product_modal_form_title }}
+        </v-card-text>
 
-
-      <v-col cols="12" md="12" class="text-center">
-        <v-btn color="info" class="me-4" @click="dialog_message = false">Close</v-btn>
-      </v-col>
-    </v-container>
-  </v-card>
-</v-dialog>
-
-<v-dialog v-model="dialog" transition="dialog-bottom-transition">
-  <v-card>
-    <v-card-text class="text-h4">
-      {{ product_modal_form_title }}
-    </v-card-text>
-
-  <v-form ref="orders_form" v-model="valid" lazy-validation>
-    <v-container>
-      <v-row>
-        <v-col cols="12" md="4">
-          <v-text-field class="text-body-1" v-model="editedOrder.product_name" :label="orderTemplateLabels.product_name"
-            :model-value="editedOrder.product_name" :rules="validateProductName" :counter="3" @keydown="OrdersFormValidate()" @blur="OrdersFormValidate()"></v-text-field>
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-text-field class="text-body-1" v-model="editedOrder.weight" :label="orderTemplateLabels.weight"
-            :model-value="editedOrder.weight" :rules="validateProductWeight" @keydown="OrdersFormValidate()" @blur="OrdersFormValidate()"></v-text-field>
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-text-field class="text-body-1" v-model="editedOrder.total_price" :label="orderTemplateLabels.total_price"
-            :model-value="editedOrder.total_price" :rules="validateProductPrice" @keydown="OrdersFormValidate()" @blur="OrdersFormValidate()"></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12" md="12">
-          <v-textarea class="text-body-1" v-model="editedOrder.description" :label="orderTemplateLabels.description"
-            :model-value="editedOrder.description" :rules="validateProductDescription" @keydown="OrdersFormValidate()" @blur="OrdersFormValidate()"></v-textarea>
-        </v-col>
-      </v-row>
-      <v-row class="pa-4">
-        <v-col cols="12" md="6">
-          <v-btn color="warning" class="me-4" @click="OrdersFormSubmit()" :disabled="this.OrderFormNotValid">Save</v-btn>
-        </v-col>
-        <v-col cols="12" md="6" class="text-right">
-          <v-btn color="primary" class="me-4" @click="dialog = false">Close</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-form>
-</v-card>
-</v-dialog>
+        <!-- <v-form ref="orders_form" v-model="valid" lazy-validation> -->
+        <v-form ref="orders_form">
+          <v-container>
+            <v-row>
+              <v-col cols="12" md="4">
+                <v-text-field class="text-body-1" v-model="editedOrder.product_name"
+                  :label="orderTemplateLabels.product_name" :model-value="editedOrder.product_name"
+                  :rules="validateProductName" :counter="3" @keydown="OrdersFormValidate()"></v-text-field>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-text-field class="text-body-1" v-model="editedOrder.weight" :label="orderTemplateLabels.weight"
+                  :model-value="editedOrder.weight" :rules="validateProductWeight"
+                  @keydown="OrdersFormValidate()"></v-text-field>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-text-field class="text-body-1" v-model="editedOrder.total_price"
+                  :label="orderTemplateLabels.total_price" :model-value="editedOrder.total_price"
+                  :rules="validateProductPrice"
+                  @keydown="OrdersFormValidate(orderTemplateLabels.total_price)"></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" md="12">
+                <v-textarea class="text-body-1" v-model="editedOrder.description"
+                  :label="orderTemplateLabels.description" :model-value="editedOrder.description"
+                  :rules="validateProductDescription" @keydown="OrdersFormValidate()"></v-textarea>
+              </v-col>
+            </v-row>
+            <v-row class="pa-4">
+              <v-col cols="12" md="6">
+                <v-btn color="warning" class="me-4" @click="OrdersFormSubmit()"
+                  :disabled="this.OrderFormNotValid">Save</v-btn>
+              </v-col>
+              <v-col cols="12" md="6" class="text-right">
+                <v-btn color="primary" class="me-4" @click="dialog = false">Close</v-btn>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-form>
+      </v-card>
+    </v-dialog>
 
   </v-app>
 
-    <!-- <pagination></pagination> -->
-    <router-view></router-view>
+  <!-- <pagination></pagination> -->
+  <router-view></router-view>
 
 
 </template>
@@ -170,26 +163,26 @@ export default {
         responseStatus: 0, 
         product_modal_form_title: '',
         orderTemplateLabels: {
-            'product_name': 'product_name (required)',
-            'weight': 'weight (required)',
-            'description': 'description (required)',
-            'total_price': 'total_price (required)'
+            'product_name': 'product_name',
+            'weight': 'weight',
+            'description': 'description',
+            'total_price': 'total_price'
       },
       OrderFormNotValid: true,
       validateProductName: [
-        v => !!v && v.length >= 1 || 'Product name is required',
+        v => !!v && v.length >= 1 || 'required',
         v => (v && v.length >= 3) || 'Product name must be minimum 3 characters',
       ],
       validateProductWeight: [
-        v => !!v && v.length >= 1 || 'Product weigth is required',
-        v => (v && v % 1 != 0 && this.countDecimal(v) >= 2) || 'Product weigth must be a decimal number with 2 places (1.11)'
-      ],
+        v => !!v && v.length >= 1 || 'required',
+        v => this.validWeight() === true || 'Product weigth must be a decimal number with 2 places (1.11)'
+     ],
       validateProductPrice: [
-        v => !!v && v.length >= 1 || 'Product price is required',
-        v => (v && v % 1 != 0 && this.countDecimal(v) >= 2) || 'Product price must be a decimal number with 2 places (1.11)'
+        v => !!v && v.length >= 1 || 'required',
+        v => this.validPrice() === true || 'Product price must be a decimal number with 2 places (1.11)'
       ],
       validateProductDescription: [
-        v => !!v && v.length >= 1 || 'Product description is required'
+        v => !!v && v.length >= 1 || 'required'
       ]
 
     };
@@ -285,7 +278,7 @@ methods: {
       this.editedOrder = order;
       this.product_modal_form_title = 'Edit order';
       this.dialog = true;
-    
+      this.OrderFormNotValid = false;
   }, 
 
   newItem() {
@@ -316,16 +309,31 @@ methods: {
     this.dialog_message = true;
   },
 
-  async OrdersFormValidate() {
-    let validation = await this.$refs.orders_form.validate();
-    validation.valid ? this.OrderFormNotValid = false : this.OrderFormNotValid = true;
-    console.log("validation.valid: "+validation.valid);
+  validWeight() {
+    return this.validDecimal2Places(this.editedOrder.weight);
   },
 
-  countDecimal(v) {
-    if (Math.floor(v.valueOf()) === v.valueOf()) return 0;
-    return v.toString().split(".")[1].length || 0;
+  validPrice(){
+    return this.validDecimal2Places(this.editedOrder.total_price);
   },
+
+  validDecimal2Places(decimalValue = 0.00){
+      let decitest = /^(?!00)\d+\.0{2,}$/;
+      let decimalValuePlaces = decimalValue.toString().split(".")[1];
+      if (decitest.test(decimalValue) || (decimalValuePlaces && decimalValuePlaces.length == 2)) {
+        return true;
+      } else {
+        return false;
+      }
+  },
+
+  OrdersFormValidate() {
+    setTimeout(async ()=>{
+      let validation = await this.$refs.orders_form.validate();
+      validation.valid ? this.OrderFormNotValid = false : this.OrderFormNotValid = true;
+    }, 500);
+  },
+
 },
 created (){
   
