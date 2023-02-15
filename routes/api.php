@@ -18,7 +18,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('orders', '\App\Http\Controllers\Api\OrdersController@index');
+Route::get('orders', '\App\Http\Controllers\Api\OrdersController@getAll');
 Route::post('orders/update', '\App\Http\Controllers\Api\OrdersController@update');
 Route::delete('orders/delete', '\App\Http\Controllers\Api\OrdersController@deleteOrder');
 Route::post('orders/create', '\App\Http\Controllers\Api\OrdersController@store');
