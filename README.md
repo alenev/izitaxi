@@ -1,7 +1,8 @@
 # LaravelVueVuexVuetifyOrdersCRUD
  
-## CRUD app with backend on Laravel 9 and frontend on Vue/Vuex/Vuetify
-- [demo](http://orders-crud.alenev.name)
+## CRUD app with backend on Laravel 9 and SPA frontend on Vue/Vuex/Vuetify
+
+## [demo](http://orders-crud.alenev.name)
 
 
 ##### Frontend
@@ -24,3 +25,4 @@
 - start development-environment `npm run dev` In .htaccess configured redirect to the folder /public. To render an app from a static build to production, the build is done using `npm run build`
 - the frontend app on Vue/Vuex/Vuetify is implemented in the basic Laravel template resources\views\welcome.blade.php
 - in routes\web.php configured processing of all frontend routes through the app
+- in config .github/workflows/sshdeploy.yml you can find settings for CI/CD from localhost to VPS
