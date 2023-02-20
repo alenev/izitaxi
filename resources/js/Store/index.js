@@ -102,9 +102,9 @@ export default createStore({
 
         async fetchOrders({ commit }, link = "api/orders?page=1") {
             
-            console.log('VITE_MICROSERVICE_ORDERS_URL: '+import.meta.env.VITE_MICROSERVICE_ORDERS_URL);
-
-            if(import.meta\u200b.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
+            console.log('VITE_MICROSERVICE_ORDERS_URL: '+import.meta\u200b.env.VITE_MICROSERVICE_ORDERS_URL);
+            
+            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
                 link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
             }
 
