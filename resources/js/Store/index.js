@@ -82,7 +82,7 @@ export default createStore({
             if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
                 link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
             }
-            
+
             await axios.post(link, order)
             .then(response => {
                 
@@ -101,6 +101,8 @@ export default createStore({
         },
 
         async fetchOrders({ commit }, link = "api/orders?page=1") {
+            
+            console.log('VITE_MICROSERVICE_ORDERS_URL: '+import.meta.env.VITE_MICROSERVICE_ORDERS_URL);
             
             if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
                 link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
