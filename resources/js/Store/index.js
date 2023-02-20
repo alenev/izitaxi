@@ -30,9 +30,13 @@ export default createStore({
     }, 
     actions: {
 
-        async storeNewOrder({ commit }, order){
+        async storeNewOrder({ commit }, order, link = "api/orders/create"){
 
-            await axios.post("api/orders/create", order) 
+            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
+                link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+            }
+
+            await axios.post(link, order) 
             .then(response => {
                 if(response.status == 200){
                     commit("SET_ADD_ORDER" , response.data.data.message);
@@ -48,9 +52,13 @@ export default createStore({
 
         },
 
-        async deleteOrder({ commit }, order){
+        async deleteOrder({ commit }, order, link = "api/orders/delete"){
 
-            await axios.delete("api/orders/delete", {
+            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
+                link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+            }
+
+            await axios.delete(link, {
                 data: { 
                     id: order.id
                 }
@@ -69,10 +77,13 @@ export default createStore({
             });
         },
         
-        async storeEditOrder({ commit }, order){
+        async storeEditOrder({ commit }, order, link = "api/orders/update"){
 
-
-            await axios.post("api/orders/update", order)
+            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
+                link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+            }
+            
+            await axios.post(link, order)
             .then(response => {
                 
                 if(response.status == 200){
@@ -91,9 +102,13 @@ export default createStore({
 
         async fetchOrders({ commit }, link = "api/orders?page=1") {
             
+            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
+                link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+            }
+
             await axios.get(link+"&limit=20")
             .then(response => {
-  
+              
               commit("SET_ORDERS", response.data.data.data);
 
               commit("SET_PAGINATION", {
