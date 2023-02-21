@@ -112,10 +112,10 @@ export default createStore({
         },
 
         async fetchOrders({ commit }, link = "api/orders?page=1") {
-             
-          
+                  
             if(microserviceConfig.VITE_MICROSERVICE_ORDERS_USE == 'true'){  
                 link = microserviceConfig.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+
             }
 
             await axios.get(link+"&limit=20")
