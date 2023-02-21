@@ -1,5 +1,16 @@
 import { createStore } from 'vuex';
 import axios from 'axios';
+import * as microserviceConfigDev from  '../env.microservicesDev.js';
+import * as microserviceConfigProd from  '../env.microservicesProd.js';
+
+let microserviceConfig = '';
+if(import.meta.env.VITE_APP_ENV == 'local1'){
+    const microserviceConfig = microserviceConfigDev;
+
+}else{
+    const microserviceConfig = microserviceConfigProd;
+}
+
 
 export default createStore({
     store: {
@@ -32,8 +43,8 @@ export default createStore({
 
         async storeNewOrder({ commit }, order, link = "api/orders/create"){
 
-            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
-                link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+            if(microserviceConfig.VITE_MICROSERVICE_ORDERS_USE == 'true'){  
+                link = microserviceConfig.VITE_MICROSERVICE_ORDERS_URL+"/"+link
             }
 
             await axios.post(link, order) 
@@ -54,8 +65,8 @@ export default createStore({
 
         async deleteOrder({ commit }, order, link = "api/orders/delete"){
 
-            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
-                link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+            if(microserviceConfig.VITE_MICROSERVICE_ORDERS_USE == 'true'){  
+                link = microserviceConfig.VITE_MICROSERVICE_ORDERS_URL+"/"+link
             }
 
             await axios.delete(link, {
@@ -79,10 +90,10 @@ export default createStore({
         
         async storeEditOrder({ commit }, order, link = "api/orders/update"){
 
-            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
-                link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+            if(microserviceConfig.VITE_MICROSERVICE_ORDERS_USE == 'true'){  
+                link = microserviceConfig.VITE_MICROSERVICE_ORDERS_URL+"/"+link
             }
-            
+
             await axios.post(link, order)
             .then(response => {
                 
@@ -101,9 +112,10 @@ export default createStore({
         },
 
         async fetchOrders({ commit }, link = "api/orders?page=1") {
-            
-            if(import.meta.env.VITE_MICROSERVICE_ORDERS_USE == 'true'){
-                link = import.meta.env.VITE_MICROSERVICE_ORDERS_URL+"/"+link
+             
+          
+            if(microserviceConfig.VITE_MICROSERVICE_ORDERS_USE == 'true'){  
+                link = microserviceConfig.VITE_MICROSERVICE_ORDERS_URL+"/"+link
             }
 
             await axios.get(link+"&limit=20")
