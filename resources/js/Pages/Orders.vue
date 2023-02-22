@@ -125,8 +125,8 @@
 //import Pagination from '../Components/Pagination.vue';
 import { ref, onMounted, computed } from 'vue';
 import { useStore, mapState, mapMutations, mapGetters, mapActions } from 'vuex';
-import * as microserviceConfigDev from '../env.microservicesDev.js';
-import * as microserviceConfigProd from '../env.microservicesProd.js';
+import * as microservicesConfigData from '../env.microservicesConfig.js';
+
 
 export default {
   components: {
@@ -199,11 +199,18 @@ export default {
   methods: {
 
     GetmicroserviceConfig(ordersSrc = 'local') {
-      if (ordersSrc != 'microservice') {
-        return microserviceConfigDev;
-      } else {
-        return microserviceConfigProd;
+      let host = '';
+      if(window.location.href.indexOf('localhost') > -1){
+        host = microservicesConfigData.MICROSERVICE_ORDERS_URL_LOCALHOST;
+      }else{
+        host = microservicesConfigData.MICROSERVICE_ORDERS_URL_HOST;
       }
+      if (ordersSrc != 'microservice') {
+        let url = new URL(window.location.href);
+        host = url.protocol+'//'+url.host;
+      }
+
+      return host;
     },
 
     SetOrdersSrc(event) {
@@ -244,7 +251,7 @@ export default {
           link = "/api/orders?page=1";
       }
       if(this.microserviceConfig){
-          link = this.microserviceConfig.MICROSERVICE_ORDERS_URL + "" + link;
+          link = this.microserviceConfig + "" + link;
       }
       return link;
 },
