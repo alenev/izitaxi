@@ -1,19 +1,23 @@
 # LaravelVueVuexVuetifyOrdersCRUD
  
-## CRUD app with backend on Laravel 9 and SPA frontend on Vue/Vuex/Vuetify
+## CRUD app with backend on Laravel 9 and SPA frontend on Vue/Vuex/Vuetify. Optionaly connection for CRUD operation to [microsrvice on Lumen](https://github.com/alenev/LaravelVueVuexVuetifyOrdersCRUDLumenOrdersMicroservice). 
 
 ## [demo](http://orders-crud.alenev.name)
 
 
-##### Frontend
+##### Front-end
 - This app has a paginated order table in the /orders route that displays all orders from the database order table;
-- It is possible to edit an existing order or add a new order in the modal window;
-- In the form of adding/editing orders, validation of form fields is configured;
-- The frontend processes order data via the Vuex store and connects to the backend using axios in the Vuex store.
+- Orders table UI realized on Vuetify material UI;
+- Orders UI have edit existing order and create new order modal windows;
+- In the create/edit orders form exist dynamic validation of form fields;
+- Orders data on Front-end process by the Vuex store and connects to the Back-end by axios in the Vuex store;
+- Orders UI have checkbox 'orders from microservice'. With this option CRUD use connection to outside API in microservice on Lumen for all CRUD operations with orders. Microservice and app use same DB.
 
-##### Backend
-- For CRUD operations of the frontend, separate REST-API points orders, orders/create, orders/update, orders/delete have been created in the backend;
-- In the REST-API points, request validation is used through separately created request validation handlers; 
+##### Back-end
+- For CRUD operations of the Front-end REST-API of Back-end has points with routes 'orders' (GET), 'orders/create' (POST), 'orders/update' (POST), 'orders/delete' (DELETE); 
+- REST-API points for orders in controller methods have validation is used through separately created request handlers ```app\Http\Requests\OrdersRequest.php``` and ```app\Http\Requests\DeleteRequest.php```;
+- Orders controller methods use  ```app\Repositories\OrdersRepository.php``` with Eloquent ORM as orders model;
+-  In main controller app\Http\Controllers\Controller.php created methods ```ApiResponceSuccess``` and ```ApiResponceError``` for unification API responses of controllers methods;
 
 ## Installation and configuration:
 
