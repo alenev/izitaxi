@@ -1,18 +1,13 @@
 import { createStore } from 'vuex';
 import axios from 'axios';
-import * as microserviceConfigDev from '../env.microservicesDev.js';
-import * as microserviceConfigProd from '../env.microservicesProd.js';
-
-let microserviceConfig = '';
-if (import.meta.env.VITE_APP_ENV == 'local') {
-    microserviceConfig = microserviceConfigDev;
-
-} else {
-    microserviceConfig = microserviceConfigProd;
-}
-
 
 export default createStore({
+    data(){
+       return {        
+       }
+    },
+    state: {
+    },
     store: {
         orders: [], // all orders
         order: {}, // updated or deleted order from API
@@ -24,6 +19,7 @@ export default createStore({
         addOrderError: '', // message from API if order added fail
         deleteOrderMessage: '', // message from API if order deleted success
         deleteOrderError: '', // message from API if order deleted fail
+        ordersSrc: 'local'
     },
     getters: {
 
@@ -37,9 +33,17 @@ export default createStore({
         getDeleteOrderError: (state) => state.deleteOrderError,
         getAddOrderMessage: (state) => state.addOrderMessage,
         getAddOrderError: (state) => state.addOrderError,
+        getOrdersSrc: (state) => state.ordersSrc
+
+    },
+    methods:{
 
     },
     actions: {
+
+        commitOrdersSrc({commit}, ordersSrc){
+            commit('SET_ORDERS_SRC', ordersSrc);
+        },
 
         async storeNewOrder({ commit }, order, link = "api/orders/create") {
 
@@ -111,15 +115,10 @@ export default createStore({
                 });
         },
 
-        async fetchOrders({ commit }, link = "api/orders?page=1") {
+        async fetchOrders({ commit }, link) {
+            
 
-            if (microserviceConfig.MICROSERVICE_ORDERS_USE == 'true') {
-                link = microserviceConfig.MICROSERVICE_ORDERS_URL + "/" + link;
-                console.log("MICROSERVICE_ORDERS_URL: " + microserviceConfig.MICROSERVICE_ORDERS_URL);
-            }
-
-
-            await axios.get(link + "&limit=20")
+            await axios.get(link)
                 .then(response => {
 
                     commit("SET_ORDERS", response.data.data.data);
@@ -177,5 +176,8 @@ export default createStore({
         SET_ADD_ORDER_ERROR(state, addOrderError) {
             state.addOrderError = addOrderError;
         },
+        SET_ORDERS_SRC(state, ordersSrc){
+            state.ordersSrc = ordersSrc;
+        }
     },
 });

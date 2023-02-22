@@ -1,5 +1,4 @@
 <template>
-
   <v-app id="inspire">
     <h1 class="text-h4 pa-md-4 ma-md-4">Orders</h1>
 
@@ -8,6 +7,9 @@
         <v-btn @click="newItem()" color="primary" rounded="pill">
           New Order
         </v-btn>
+      </div>
+      <div class="text-right my-5">
+         <v-checkbox v-model="this.ordersSrcTrue"  @click="this.SetOrdersSrc('toggle')" label="orders from microservice"></v-checkbox>
       </div>
     </v-header>
     <v-table>
@@ -93,9 +95,9 @@
             </v-row>
             <v-row>
               <v-col cols="12" md="12">
-                <v-textarea class="text-body-1" v-model="editedOrder.description"
-                  :label="orderTemplateLabels.description" :model-value="editedOrder.description"
-                  :rules="validateProductDescription" @keydown="OrdersFormValidate()"></v-textarea>
+                <v-textarea class="text-body-1" v-model="editedOrder.description" :label="orderTemplateLabels.description"
+                  :model-value="editedOrder.description" :rules="validateProductDescription"
+                  @keydown="OrdersFormValidate()"></v-textarea>
               </v-col>
             </v-row>
             <v-row class="pa-4">
@@ -116,57 +118,55 @@
 
   <!-- <pagination></pagination> -->
   <router-view></router-view>
-
-
 </template>
 
 <script>
 
 //import Pagination from '../Components/Pagination.vue';
-
 import { ref, onMounted, computed } from 'vue';
-
 import { useStore, mapState, mapMutations, mapGetters, mapActions } from 'vuex';
+import * as microserviceConfigDev from '../env.microservicesDev.js';
+import * as microserviceConfigProd from '../env.microservicesProd.js';
 
 export default {
   components: {
 
   },
-  data(){
+  data() {
     return {
 
-        orders: [],
-        order: {},
-        pagination: {},
-        pagination_links: [],
-        pagination_current_page: 1,
-        pagination_pages: 1,
-        tbl_headers: [
-        {text: 'id', align: 'start', sortable: false, value: 'id'},
-        {text: 'product name', align: 'start', sortable: true, value: 'name'},
-        {text: 'weight', align: 'start', sortable: true, value: 'weigth'},
-        {text: 'description', align: 'start', sortable: false, value: 'description'},
-        {text: 'price', align: 'start', sortable: true, value: 'price'},
-        ],
-        dialog: false,
-        dialog_message: false,
-        dialogMessageText: '',
-        editedIndex: -1,
-        deletedIndex: -1,
-        editedOrder: {}, 
-        updateOrderMessage: '',
-        updateOrderError: '',
-        addOrderMessage: '',
-        addOrderError: '',
-        deleteOrderMessage: '',
-        deleteOrderError: '',
-        responseStatus: 0, 
-        product_modal_form_title: '',
-        orderTemplateLabels: {
-            'product_name': 'product_name',
-            'weight': 'weight',
-            'description': 'description',
-            'total_price': 'total_price'
+      orders: [],
+      order: {},
+      pagination: {},
+      pagination_links: [],
+      pagination_current_page: 1,
+      pagination_pages: 1,
+      tbl_headers: [
+        { text: 'id', align: 'start', sortable: false, value: 'id' },
+        { text: 'product name', align: 'start', sortable: true, value: 'name' },
+        { text: 'weight', align: 'start', sortable: true, value: 'weigth' },
+        { text: 'description', align: 'start', sortable: false, value: 'description' },
+        { text: 'price', align: 'start', sortable: true, value: 'price' },
+      ],
+      dialog: false,
+      dialog_message: false,
+      dialogMessageText: '',
+      editedIndex: -1,
+      deletedIndex: -1,
+      editedOrder: {},
+      updateOrderMessage: '',
+      updateOrderError: '',
+      addOrderMessage: '',
+      addOrderError: '',
+      deleteOrderMessage: '',
+      deleteOrderError: '',
+      responseStatus: 0,
+      product_modal_form_title: '',
+      orderTemplateLabels: {
+        'product_name': 'product_name',
+        'weight': 'weight',
+        'description': 'description',
+        'total_price': 'total_price'
       },
       OrderFormNotValid: true,
       validateProductName: [
@@ -176,147 +176,199 @@ export default {
       validateProductWeight: [
         v => !!v && v.length >= 1 || 'required',
         v => this.validWeight() === true || 'Product weigth must be a decimal number with 2 places (1.11)'
-     ],
+      ],
       validateProductPrice: [
         v => !!v && v.length >= 1 || 'required',
         v => this.validPrice() === true || 'Product price must be a decimal number with 2 places (1.11)'
       ],
       validateProductDescription: [
         v => !!v && v.length >= 1 || 'required'
-      ]
-
+      ],
+      microserviceConfig: {},
+      ordersSrcTrue: false
     };
-},
-mounted(){
+  },
+  mounted() {
 
-    this.Orders();
+    this.SetOrdersSrc();
+    
+  },
+  computed: {
 
-},
-computed: {
+  },
+  methods: {
 
-},
-methods: {
+    GetmicroserviceConfig(ordersSrc = 'local') {
+      if (ordersSrc != 'microservice') {
+        return microserviceConfigDev;
+      } else {
+        return microserviceConfigProd;
+      }
+    },
 
-   async storeOrder(order){
+    SetOrdersSrc(event) {
+
+      let ordersSrc = 'local';
+      let ordersSrcInLocalStorage = localStorage.getItem('ordersSrc');
+
+      if (event == 'toggle') {
+
+        if (this.$store.getters.getOrdersSrc != 'microservice') {
+          ordersSrc = 'microservice';
+          this.ordersSrcTrue = true;
+        } else {
+          this.ordersSrcTrue = true;
+        }
+        localStorage.setItem('ordersSrc', ordersSrc);
+      } else {
+
+        if (ordersSrcInLocalStorage && ordersSrcInLocalStorage.length > 0 && ordersSrcInLocalStorage == 'microservice') {
+          ordersSrc = 'microservice';
+          this.ordersSrcTrue = true;
+        }
+
+      }
+
+      this.$store.dispatch('commitOrdersSrc', ordersSrc);
+      this.Orders();
+
+    },
+
+   async storeOrder(order) {
 
 
-    if(order.id > 0){
+      if (order.id > 0) {
 
         await this.$store.dispatch('storeEditOrder', order);
         this.updateOrderMessage = this.$store.getters.getUpdateOrderMessage;
         this.updateOrderError = this.$store.getters.getUpdateOrderError;
         this.responseStatus = this.$store.getters.getResponseStatus;
-        if(this.responseStatus == 200){
+        if (this.responseStatus == 200) {
           this.order = this.$store.getters.getOrder;
           Object.assign(this.orders[this.editedIndex], this.order);
-          this.showDialogMessage(this.updateOrderMessage);         
-        }else{
+          this.showDialogMessage(this.updateOrderMessage);
+        } else {
           this.showDialogMessage(this.updateOrderError);
         }
         this.editedIndex = -1;
-    }else{
+      } else {
         order.id = 0;
         await this.$store.dispatch('storeNewOrder', order);
         this.addOrderMessage = this.$store.getters.getAddOrderMessage;
         this.addOrderError = this.$store.getters.getAddOrderError;
         this.responseStatus = this.$store.getters.getResponseStatus;
-        if(this.responseStatus == 200){
+        if (this.responseStatus == 200) {
           this.order = this.$store.getters.getOrder;
-          this.orders.unshift(this.order); 
+          this.orders.unshift(this.order);
           this.showDialogMessage(this.addOrderMessage);
           this.editedOrder = {};
-        }else{
+        } else {
           this.showDialogMessage(this.addOrderError);
-        }
-    }
-
-   },
-
-   async deleteOrder(order){
-
-        await this.$store.dispatch('deleteOrder', order);
-        this.deleteOrderMessage = this.$store.getters.getDeleteOrderMessage;
-        this.deleteOrderError = this.$store.getters.getDeleteOrderError;
-        this.responseStatus = this.$store.getters.getResponseStatus;
-        if(this.responseStatus == 200){
-          this.showDialogMessage(this.deleteOrderMessage);
-          delete this.orders[this.deletedIndex];
-          this.orders.splice(this.deletedIndex, 1);
-        }else{
-          this.showDialogMessage(this.deleteOrderError);
-        }
-   },
-
-   async Orders(link){
-
-    await this.$store.dispatch('fetchOrders', link);
-    this.orders = this.$store.getters.getOrders;
-    this.pagination = this.$store.getters.getPagination;
-    this.pagination_links = this.pagination.links;
-    this.pagination_links.shift();
-    this.pagination_links.pop();
-    this.pagination_current_page = this.pagination.currentPageNumber;
-    this.pagination_pages = Math.ceil(this.pagination.totalItem/this.pagination.perPage);
-
-   },
-
-   isPageActive(active) {
-      return active === true;
-    },
-
-    nextPage(page){
-
-
-      for(let i=0; i<= this.pagination_links.length; i++){
-        if(i == page-1){
-            this.Orders(this.pagination_links[i].url);
         }
       }
 
     },
 
-  async editItem(order) {
+    async deleteOrder(order) {
+
+      await this.$store.dispatch('deleteOrder', order);
+      this.deleteOrderMessage = this.$store.getters.getDeleteOrderMessage;
+      this.deleteOrderError = this.$store.getters.getDeleteOrderError;
+      this.responseStatus = this.$store.getters.getResponseStatus;
+      if (this.responseStatus == 200) {
+        this.showDialogMessage(this.deleteOrderMessage);
+        delete this.orders[this.deletedIndex];
+        this.orders.splice(this.deletedIndex, 1);
+      } else {
+        this.showDialogMessage(this.deleteOrderError);
+      }
+    },
+
+    ApiLink(link){ 
+
+      this.microserviceConfig = this.GetmicroserviceConfig(this.$store.getters.getOrdersSrc);
+            if(link && link.length > 0){
+              let url = new URL(link);
+              link = url.pathname+url.search;
+            }else{
+                link = "/api/orders?page=1";
+            }
+            if(this.microserviceConfig){
+                link = this.microserviceConfig.MICROSERVICE_ORDERS_URL + "" + link;
+            }
+            link = link+'&limit=20';
+            return link;
+    },
+    async Orders(link) {
+
+      await this.$store.dispatch('fetchOrders', this.ApiLink(link));
+      this.orders = this.$store.getters.getOrders;
+      this.pagination = this.$store.getters.getPagination;
+      this.pagination_links = this.pagination.links;
+      this.pagination_links.shift();
+      this.pagination_links.pop();
+      this.pagination_current_page = this.pagination.currentPageNumber;
+      this.pagination_pages = Math.ceil(this.pagination.totalItem / this.pagination.perPage);
+
+    },
+
+    isPageActive(active) {
+      return active === true;
+    },
+
+    nextPage(page) {
+
+
+      for (let i = 0; i <= this.pagination_links.length; i++) {
+        if (i == page - 1) {
+          this.Orders(this.pagination_links[i].url);
+        }
+      }
+
+    },
+
+    async editItem(order) {
       this.editedIndex = this.orders.indexOf(order);
       this.editedOrder = order;
       this.product_modal_form_title = 'Edit order';
       this.dialog = true;
       this.OrderFormNotValid = false;
-  }, 
+    },
 
-  newItem() {
-    this.editedOrder = {};
-    this.product_modal_form_title = 'New order';
-    this.dialog = true;
-    this.OrderFormNotValid = true;
-  },
+    newItem() {
+      this.editedOrder = {};
+      this.product_modal_form_title = 'New order';
+      this.dialog = true;
+      this.OrderFormNotValid = true;
+    },
 
 
-  OrdersFormSubmit() {
-    if(this.$refs.orders_form.validate()){
-    this.storeOrder(this.editedOrder);
-    this.dialog = false;
-    }
-  },
+    OrdersFormSubmit() {
+      if (this.$refs.orders_form.validate()) {
+        this.storeOrder(this.editedOrder);
+        this.dialog = false;
+      }
+    },
 
-  deleteItem(order) {
-    this.deletedIndex = this.orders.indexOf(order);
-    this.deleteOrder(order);
-  },
+    deleteItem(order) {
+      this.deletedIndex = this.orders.indexOf(order);
+      this.deleteOrder(order);
+    },
 
-  showDialogMessage(text) {
-    this.dialogMessageText = text;
-    this.dialog_message = true;
-  },
+    showDialogMessage(text) {
+      this.dialogMessageText = text;
+      this.dialog_message = true;
+    },
 
-  validWeight() {
-    return this.validDecimal2Places(this.editedOrder.weight);
-  },
+    validWeight() {
+      return this.validDecimal2Places(this.editedOrder.weight);
+    },
 
-  validPrice(){
-    return this.validDecimal2Places(this.editedOrder.total_price);
-  },
+    validPrice() {
+      return this.validDecimal2Places(this.editedOrder.total_price);
+    },
 
-  validDecimal2Places(decimalValue = 0.00){
+    validDecimal2Places(decimalValue = 0.00) {
       let decitest = /^(?!00)\d+\.0{2,}$/;
       let decimalValuePlaces = decimalValue.toString().split(".")[1];
       if (decitest.test(decimalValue) || (decimalValuePlaces && decimalValuePlaces.length == 2)) {
@@ -324,27 +376,27 @@ methods: {
       } else {
         return false;
       }
-  },
+    },
 
-  OrdersFormValidate() {
-    setTimeout(async ()=>{
-      let validation = await this.$refs.orders_form.validate();
-      validation.valid ? this.OrderFormNotValid = false : this.OrderFormNotValid = true;
-    }, 500);
-  },
+    OrdersFormValidate() {
+      setTimeout(async () => {
+        let validation = await this.$refs.orders_form.validate();
+        validation.valid ? this.OrderFormNotValid = false : this.OrderFormNotValid = true;
+      }, 500);
+    },
 
-},
-created (){
-  
-},
-watch: {
-    "pagination_current_page": (newPage) => {},
-    showDialog: function(val) {
-      if(val) {
-    
+  },
+  created() {
+
+  },
+  watch: {
+    "pagination_current_page": (newPage) => { },
+    showDialog: function (val) {
+      if (val) {
+
       }
     }
-}
+  }
 
 };
 
