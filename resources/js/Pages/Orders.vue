@@ -234,12 +234,28 @@ export default {
 
     },
 
+    ApiLink(link, event){ 
+
+      this.microserviceConfig = this.GetmicroserviceConfig(this.$store.getters.getOrdersSrc);
+      if(link && link.indexOf('http') > -1){
+        let url = new URL(link);
+        link = url.pathname+url.search;
+      }else if(!link && event == 'orders'){
+          link = "/api/orders?page=1";
+      }
+      if(this.microserviceConfig){
+          link = this.microserviceConfig.MICROSERVICE_ORDERS_URL + "" + link;
+      }
+      return link;
+},
+
    async storeOrder(order) {
 
+       
 
       if (order.id > 0) {
-
-        await this.$store.dispatch('storeEditOrder', order);
+        let params = {'order': order, 'link': this.ApiLink('/api/orders/update')};
+        await this.$store.dispatch('storeEditOrder', params);
         this.updateOrderMessage = this.$store.getters.getUpdateOrderMessage;
         this.updateOrderError = this.$store.getters.getUpdateOrderError;
         this.responseStatus = this.$store.getters.getResponseStatus;
@@ -253,7 +269,8 @@ export default {
         this.editedIndex = -1;
       } else {
         order.id = 0;
-        await this.$store.dispatch('storeNewOrder', order);
+        let params = {'order': order, 'link': this.ApiLink('/api/orders/create')};
+        await this.$store.dispatch('storeNewOrder', params);
         this.addOrderMessage = this.$store.getters.getAddOrderMessage;
         this.addOrderError = this.$store.getters.getAddOrderError;
         this.responseStatus = this.$store.getters.getResponseStatus;
@@ -270,8 +287,8 @@ export default {
     },
 
     async deleteOrder(order) {
-
-      await this.$store.dispatch('deleteOrder', order);
+      let params = {'order': order, 'link': this.ApiLink('/api/orders/delete')}; 
+      await this.$store.dispatch('deleteOrder', params);
       this.deleteOrderMessage = this.$store.getters.getDeleteOrderMessage;
       this.deleteOrderError = this.$store.getters.getDeleteOrderError;
       this.responseStatus = this.$store.getters.getResponseStatus;
@@ -284,24 +301,9 @@ export default {
       }
     },
 
-    ApiLink(link){ 
-
-      this.microserviceConfig = this.GetmicroserviceConfig(this.$store.getters.getOrdersSrc);
-            if(link && link.length > 0){
-              let url = new URL(link);
-              link = url.pathname+url.search;
-            }else{
-                link = "/api/orders?page=1";
-            }
-            if(this.microserviceConfig){
-                link = this.microserviceConfig.MICROSERVICE_ORDERS_URL + "" + link;
-            }
-            link = link+'&limit=20';
-            return link;
-    },
     async Orders(link) {
 
-      await this.$store.dispatch('fetchOrders', this.ApiLink(link));
+      await this.$store.dispatch('fetchOrders', this.ApiLink(link, 'orders')+'&limit=20');
       this.orders = this.$store.getters.getOrders;
       this.pagination = this.$store.getters.getPagination;
       this.pagination_links = this.pagination.links;

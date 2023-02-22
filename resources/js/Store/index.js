@@ -45,13 +45,9 @@ export default createStore({
             commit('SET_ORDERS_SRC', ordersSrc);
         },
 
-        async storeNewOrder({ commit }, order, link = "api/orders/create") {
+        async storeNewOrder({ commit }, params) {
 
-            if (microserviceConfig.MICROSERVICE_ORDERS_USE == 'true') {
-                link = microserviceConfig.MICROSERVICE_ORDERS_URL + "/" + link
-            }
-
-            await axios.post(link, order)
+            await axios.post(params.link, params.order)
                 .then(response => {
                     if (response.status == 200) {
                         commit("SET_ADD_ORDER", response.data.data.message);
@@ -67,15 +63,11 @@ export default createStore({
 
         },
 
-        async deleteOrder({ commit }, order, link = "api/orders/delete") {
+        async deleteOrder({ commit }, params) {
 
-            if (microserviceConfig.MICROSERVICE_ORDERS_USE == 'true') {
-                link = microserviceConfig.MICROSERVICE_ORDERS_URL + "/" + link
-            }
-
-            await axios.delete(link, {
+            await axios.delete(params.link, {
                 data: {
-                    id: order.id
+                    id: params.order.id
                 }
             })
                 .then(response => {
@@ -92,13 +84,9 @@ export default createStore({
                 });
         },
 
-        async storeEditOrder({ commit }, order, link = "api/orders/update") {
-
-            if (microserviceConfig.MICROSERVICE_ORDERS_USE == 'true') {
-                link = microserviceConfig.MICROSERVICE_ORDERS_URL + "/" + link
-            }
-
-            await axios.post(link, order)
+        async storeEditOrder({ commit }, params) {
+            console.log('params: '+params);
+            await axios.post(params.link, params.order)
                 .then(response => {
 
                     if (response.status == 200) {
