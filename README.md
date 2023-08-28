@@ -2,8 +2,6 @@
  
 ## CRUD app with backend on Laravel 9 and SPA frontend on Vue/Vuex/Vuetify. Optionaly connection for CRUD operation to [microsrvice on Lumen](https://github.com/alenev/LaravelVueVuexVuetifyOrdersCRUDLumenOrdersMicroservice). 
 
-## [demo](http://orders-crud.alenev.name)
-
 
 ##### Front-end
 - This app has a paginated order table in the /orders route that displays all orders from the database order table;
